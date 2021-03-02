@@ -100,7 +100,9 @@ curl http://localhost:8080/wandera/puppet-prometheus/master/1093b8
 
 ### Kubernetes (Openshift)
 
-Since my current work in on OpenShift (I somehow skipped pure K8s), I created openshift manifest yaml. I beleive, that the only significant change to run on k8s cluster is to change openshift's native deploymentconfig to deployment.
+Since my current work is on OpenShift (I somehow skipped pure K8s), I created openshift manifest yaml.
+https://github.com/polisko/gitcommits/blob/main/rest/gc-openshift.yaml
+I believe, that the only significant change to run on k8s cluster is to change openshift's native deploymentconfig to k8s deployment.
 
 Service exposed temporarily:
 
