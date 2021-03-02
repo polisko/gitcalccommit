@@ -23,18 +23,18 @@ func main() {
 	var useLocalRepo, shortPrint bool
 	var r *git.Repository
 	var err error
-	var authToken string = "d25b223029bd4ed0dc604039a5d4c613b361a8df"
+	var authToken string
 
 	// check, if auth token is there
 	if a, ok := os.LookupEnv("AUTH_TOKEN"); ok {
 		authToken = a
 	}
 
-	flag.StringVar(&owner, "o", "golang", "Repository owner")
-	flag.StringVar(&repo, "r", "go", "Repository name")
-	flag.StringVar(&branch, "b", "master", "Branch")
+	flag.StringVar(&owner, "o", "", "Repository owner")
+	flag.StringVar(&repo, "r", "", "Repository name")
+	flag.StringVar(&branch, "b", "", "Branch")
 	flag.BoolVar(&useLocalRepo, "l", true, "Whether to try locate local git repository in the current tree")
-	flag.BoolVar(&shortPrint, "s", true, "Whether to print shorter or longer output")
+	flag.BoolVar(&shortPrint, "s", false, "Whether to print shorter or longer output")
 	flag.StringVar(&commit, "c", "", "commit hash (OID)")
 	flag.IntVar(&logLevel, "logLevel", 4, "Loglevel, default 4=Info")
 	flag.Parse()
@@ -49,6 +49,7 @@ func main() {
 	gitc.DefaultRepo = repo
 	gitc.DefaultBranch = branch
 
+	// if useLocalRepo is true, all unset paramaters are being tried to get from it
 	if useLocalRepo {
 		r, err = findLocalRepo()
 		if err != nil {
@@ -65,8 +66,12 @@ func main() {
 				log.Errorf("Error: %v", err)
 			} else {
 				// trying to setup from local HEAD
-				commit = pr.Hash().String()
-				gitc.DefaultBranch = pr.Name().Short()
+				if commit == "" {
+					commit = pr.Hash().String()
+				}
+				if branch == "" {
+					gitc.DefaultBranch = pr.Name().Short()
+				}
 				conf, err := r.Config()
 				if err == nil {
 					if len(conf.Remotes["origin"].URLs) > 0 {
@@ -74,12 +79,20 @@ func main() {
 						switch {
 						case url[0:5] == "https":
 							p := strings.Split(url, "/")
-							gitc.DefaultRepo = p[len(p)-1]
-							gitc.DefaultOwner = p[len(p)-2]
+							if repo == "" {
+								gitc.DefaultRepo = p[len(p)-1]
+							}
+							if owner == "" {
+								gitc.DefaultOwner = p[len(p)-2]
+							}
 						case url[0:4] == "git@":
 							p := strings.Split(strings.Split(url, ":")[1], "/")
-							gitc.DefaultRepo = p[1][0:strings.Index(p[1], ".")]
-							gitc.DefaultOwner = p[0]
+							if repo == "" {
+								gitc.DefaultRepo = p[1][0:strings.Index(p[1], ".")]
+							}
+							if owner == "" {
+								gitc.DefaultOwner = p[0]
+							}
 						}
 					}
 				}

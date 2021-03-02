@@ -1,0 +1,77 @@
+apiVersion: v1
+items:
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: gc
+    name: gc
+  spec:
+    replicas: 1
+    selector:
+      app: gc
+      deploymentconfig: gc
+    strategy:
+      resources: {}
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: gc
+          deploymentconfig: gc
+      spec:
+        containers:
+        - env:
+          - name: AUTH_TOKEN
+            value: <your auth token here>
+          image: quay.io/polisko/gitcommits
+          name: gc
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources: {}
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - gc
+        from:
+          kind: ImageStreamTag
+          name: gc:latest
+      type: ImageChange
+  status:
+    availableReplicas: 0
+    latestVersion: 0
+    observedGeneration: 0
+    replicas: 0
+    unavailableReplicas: 0
+    updatedReplicas: 0
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: gc
+    name: gc
+  spec:
+    ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      app: gc
+      deploymentconfig: gc
+  status:
+    loadBalancer: {}
+kind: List
+metadata: {}

@@ -81,7 +81,8 @@ func (gc *GitCommits) FindCommitWithCtx(ctx context.Context, oid string) (*Commi
 	}
 
 	if commit.Repository.Object.Commit.OID == "" {
-		return nil, fmt.Errorf("Commit %q not found", oid)
+		return nil, fmt.Errorf("Commit %q not found for repository github.com/%s/%s, branch: %s", oid, gc.DefaultOwner,
+			gc.DefaultRepo, gc.DefaultBranch)
 	}
 
 	return &CommitWithTS{OID: commit.Repository.Object.Commit.OID,
