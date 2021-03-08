@@ -2,6 +2,7 @@ package gitcommits
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"reflect"
 	"testing"
@@ -15,8 +16,13 @@ import (
 func TestGitCommits_FindCommitWithCtx(t *testing.T) {
 	// Needs authToken to be set in ENV variables
 	authToken := os.Getenv("AUTH_TOKEN")
+	if authToken == "" {
+		fmt.Println("Please set up 'AUTH_TOKEN' to run the tests.")
+		t.FailNow()
+		return
+	}
 	cli, err := NewGitCommits("")
-	if err == ErrMissingOrBadAuthToken {
+	if err != ErrMissingOrBadAuthToken {
 		t.Errorf("Must fail due to missing authToken")
 	}
 	cli, err = NewGitCommits(authToken)

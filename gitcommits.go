@@ -19,7 +19,7 @@ type GitCommits struct {
 	client        *githubv4.Client
 }
 
-//ErrMissingOrBadAuthToken represents
+//ErrMissingOrBadAuthToken represents an error, occurred with wrong missing or bad token
 var ErrMissingOrBadAuthToken = errors.New("Missing or wrong Git authorization token")
 
 // NewGitCommits return new GitCommits object, based on authorization token.
@@ -46,7 +46,7 @@ func NewGitCommits(token string) (*GitCommits, error) {
 }
 
 // FindCommitWithCtx searches for SHA (OID) (shortened too) in given repository
-// if it finds, return full SHA
+// if it finds, return full SHA (OID)
 // if not, nil and corresponding error
 func (gc *GitCommits) FindCommitWithCtx(ctx context.Context, oid string) (*CommitWithTS, error) {
 	// query getCommitsSHA($owner: String!, $repo: String!, $expression: String!) {
