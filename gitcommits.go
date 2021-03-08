@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/shurcooL/githubv4"
 	log "github.com/sirupsen/logrus"
@@ -31,13 +32,17 @@ func NewGitCommits(token string) (*GitCommits, error) {
 	src := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	)
-	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*3000)
+	defer cancel()
 	httpClient := oauth2.NewClient(ctx, src)
 
 	client := githubv4.NewClient(httpClient)
 
 	//test token
 	err := client.Query(ctx, &viewer, nil)
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
 	if err != nil {
 		return nil, ErrMissingOrBadAuthToken
 	}
