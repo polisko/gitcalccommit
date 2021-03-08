@@ -56,8 +56,8 @@ func main() {
 
 func getCommits(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	ctx := context.Background()
-
+	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*3000)
+	defer cancel()
 	cli, err := gitcommits.NewGitCommits(authToken)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error creating git client %s", err), http.StatusInternalServerError)
@@ -71,12 +71,19 @@ func getCommits(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	if ctx.Err() != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	list, err := cli.ListCommitsWithCtx(ctx, *c)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error %s getting list of commits %s", err, params["commit"]), http.StatusBadRequest)
 		return
 	}
-
+	if ctx.Err() != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	res, err := json.Marshal(list)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error marshalling to json %s", err), http.StatusInternalServerError)
